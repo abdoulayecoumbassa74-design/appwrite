@@ -1,0 +1,14 @@
+{
+  "roles": {
+    "owner": ["*"],
+    "admin": ["*.read", "*.write"],
+    "developer": ["compute.*", "vm.*", "storage.*", "kubernetes.*", "database.*", "network.read"],
+    "viewer": ["*.read"],
+    "billing": ["billing.read", "billing.write"]
+  },
+  "tenantBoundary": {
+    "requiredClaims": ["sub", "org", "roles"],
+    "resourceClaim": "org",
+    "denyCrossTenantAccess": true
+  }
+}

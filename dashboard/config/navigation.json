@@ -1,0 +1,20 @@
+{
+  "navigation": [
+    "Dashboard",
+    "Projects",
+    "Compute",
+    "Virtual Machines",
+    "Kubernetes",
+    "Storage",
+    "Networking",
+    "Databases",
+    "Marketplace",
+    "AI",
+    "Billing",
+    "Monitoring",
+    "Logs",
+    "Settings"
+  ],
+  "preserveAuthentication": true,
+  "designSystem": "appwrite-console"
+}

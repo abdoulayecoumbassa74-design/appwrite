@@ -19,7 +19,8 @@
         "refactor": "vendor/bin/rector process",
         "refactor:check": "vendor/bin/rector process --dry-run",
         "installer:clean": "php src/Appwrite/Platform/Installer/Server.php --clean",
-        "installer:dev": "docker compose build && composer installer:clean && php src/Appwrite/Platform/Installer/Server.php --docker"
+        "installer:dev": "docker compose build && composer installer:clean && php src/Appwrite/Platform/Installer/Server.php --docker",
+        "novacloud:validate": "php scripts/novacloud-validate.php"
     },
     "autoload": {
         "psr-4": {
@@ -116,8 +117,7 @@
         "ext-phpiredis": "*"
     },
     "config": {
-        "platform": {
-        },
+        "platform": {},
         "allow-plugins": {
             "php-http/discovery": true,
             "tbachert/spi": true

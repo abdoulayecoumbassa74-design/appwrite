@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package novacloud.vm.v1;
+
+service VMService {
+  rpc CreateVM(VMRequest) returns (VM);
+  rpc DeleteVM(VMId) returns (Operation);
+  rpc StartVM(VMId) returns (Operation);
+  rpc StopVM(VMId) returns (Operation);
+  rpc PauseVM(VMId) returns (Operation);
+  rpc SnapshotVM(VMId) returns (Snapshot);
+  rpc ResizeVM(ResizeRequest) returns (Operation);
+  rpc MigrateVM(MigrationRequest) returns (Operation);
+}
+
+message VMRequest { string organization_id = 1; string name = 2; string image = 3; string flavor = 4; }
+message VMId { string organization_id = 1; string vm_id = 2; }
+message VM { string id = 1; string organization_id = 2; string status = 3; }
+message Operation { string id = 1; string status = 2; }
+message Snapshot { string id = 1; string vm_id = 2; }
+message ResizeRequest { VMId vm = 1; string flavor = 2; }
+message MigrationRequest { VMId vm = 1; string target = 2; }
