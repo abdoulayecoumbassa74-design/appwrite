@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NovaCloud User Settings</title>
+  <link rel="stylesheet" href="../../assets/user-settings.css">
+</head>
+<body>
+  <main class="settings-shell" data-page="novacloud-user-settings">
+    <aside class="settings-sidebar" aria-label="Settings sections">
+      <p class="eyebrow">NovaCloud</p>
+      <h1>User settings</h1>
+      <nav>
+        <a href="#profile">Profile</a>
+        <a href="#security">Security</a>
+        <a href="#twoFactorAuthentication">Two-factor authentication</a>
+        <a href="#preferences">Preferences</a>
+        <a href="#cloudDefaults">NovaCloud defaults</a>
+      </nav>
+    </aside>
+
+    <section class="settings-content" aria-live="polite">
+      <header class="settings-header">
+        <div>
+          <p class="eyebrow">Authenticated account</p>
+          <h2>Account and security controls</h2>
+          <p>Manage profile details, sessions, preferences, cloud defaults, and two-factor authentication using Appwrite account APIs.</p>
+        </div>
+        <span class="auth-pill">Authentication preserved</span>
+      </header>
+
+      <section class="settings-card" id="profile">
+        <div class="card-heading">
+          <h3>Profile</h3>
+          <p>Update identity fields stored on the Appwrite account.</p>
+        </div>
+        <form data-endpoint="PATCH /v1/account/name" class="settings-form">
+          <label>Name<input name="name" type="text" maxlength="128" autocomplete="name" required></label>
+          <button type="submit">Save profile</button>
+        </form>
+        <form data-endpoint="PATCH /v1/account/email" class="settings-form two-columns">
+          <label>Email<input name="email" type="email" autocomplete="email" required></label>
+          <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+          <button type="submit">Update email</button>
+        </form>
+      </section>
+
+      <section class="settings-card" id="security">
+        <div class="card-heading">
+          <h3>Security</h3>
+          <p>Rotate credentials, review sessions, and inspect security logs.</p>
+        </div>
+        <form data-endpoint="PATCH /v1/account/password" class="settings-form two-columns">
+          <label>Current password<input name="oldPassword" type="password" autocomplete="current-password"></label>
+          <label>New password<input name="password" type="password" autocomplete="new-password" required></label>
+          <button type="submit">Change password</button>
+        </form>
+        <div class="action-row">
+          <button data-action="load-sessions" data-endpoint="GET /v1/account/sessions">Load active sessions</button>
+          <button data-action="load-logs" data-endpoint="GET /v1/account/logs">Load security logs</button>
+        </div>
+      </section>
+
+      <section class="settings-card highlighted" id="twoFactorAuthentication">
+        <div class="card-heading">
+          <h3>Two-factor authentication</h3>
+          <p>Configure TOTP, email OTP, phone OTP, and one-time recovery codes.</p>
+        </div>
+        <div class="mfa-grid">
+          <article>
+            <h4>MFA status</h4>
+            <p>Enable MFA only after at least one factor is verified.</p>
+            <label class="toggle"><input type="checkbox" data-endpoint="PATCH /v1/account/mfa"> Require MFA</label>
+          </article>
+          <article>
+            <h4>Authenticator app</h4>
+            <p>Create and verify a TOTP authenticator secret.</p>
+            <button data-endpoint="POST /v1/account/mfa/authenticators/totp">Create TOTP secret</button>
+            <button data-endpoint="PUT /v1/account/mfa/authenticators/totp">Verify TOTP</button>
+            <button data-endpoint="DELETE /v1/account/mfa/authenticators/totp">Remove TOTP</button>
+          </article>
+          <article>
+            <h4>Email or phone OTP</h4>
+            <p>Challenge and verify a second factor through Appwrite MFA challenges.</p>
+            <button data-factor="email" data-endpoint="POST /v1/account/mfa/challenges">Send email OTP</button>
+            <button data-factor="phone" data-endpoint="POST /v1/account/mfa/challenges">Send phone OTP</button>
+            <button data-endpoint="PUT /v1/account/mfa/challenges">Verify OTP</button>
+          </article>
+          <article>
+            <h4>Recovery codes</h4>
+            <p>Display codes once and regenerate them from a fresh protected session.</p>
+            <button data-endpoint="GET /v1/account/mfa/recovery-codes">View recovery codes</button>
+            <button data-endpoint="PATCH /v1/account/mfa/recovery-codes">Regenerate codes</button>
+          </article>
+        </div>
+      </section>
+
+      <section class="settings-card" id="preferences">
+        <div class="card-heading">
+          <h3>Preferences</h3>
+          <p>Store console preferences in account prefs.</p>
+        </div>
+        <form data-endpoint="PATCH /v1/account/prefs" class="settings-form three-columns">
+          <label>Theme<select name="theme"><option>system</option><option>light</option><option>dark</option></select></label>
+          <label>Locale<input name="locale" type="text" value="en"></label>
+          <label>Timezone<input name="timezone" type="text" value="UTC"></label>
+          <button type="submit">Save preferences</button>
+        </form>
+      </section>
+
+      <section class="settings-card" id="cloudDefaults">
+        <div class="card-heading">
+          <h3>NovaCloud defaults</h3>
+          <p>Choose the default organization, project, and region used by cloud services.</p>
+        </div>
+        <form data-endpoint="PATCH /v1/account/prefs" class="settings-form three-columns">
+          <label>Organization<input name="defaultOrganization" type="text"></label>
+          <label>Project<input name="defaultProject" type="text"></label>
+          <label>Region<input name="defaultRegion" type="text"></label>
+          <button type="submit">Save cloud defaults</button>
+        </form>
+      </section>
+    </section>
+  </main>
+  <script src="../../assets/user-settings.js" defer></script>
+</body>
+</html>

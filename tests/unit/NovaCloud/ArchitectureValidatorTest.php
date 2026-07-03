@@ -147,6 +147,29 @@ final class ArchitectureValidatorTest extends TestCase
         self::assertContains('twoFactor.securityControl:requireVerifiedFactorBeforeEnable', $validator->failures());
     }
 
+
+    public function testUserSettingsPageMustExposeSectionsAndMfaEndpoints(): void
+    {
+        $this->writeFile('gateway/config/routes.json', json_encode([
+            'routes' => [],
+            'transport' => [],
+        ], JSON_THROW_ON_ERROR));
+        $this->writeFile('dashboard/pages/settings/user.html', '<section id="profile"></section> PATCH /v1/account/mfa');
+
+        $validator = new ArchitectureValidator(
+            root: $this->root,
+            requiredFiles: [
+                'gateway/config/routes.json',
+                'dashboard/pages/settings/user.html',
+            ],
+            expectedRoutes: [],
+            expectedTransportCapabilities: [],
+        );
+
+        self::assertContains('userSettings.pageSection:twoFactorAuthentication', $validator->failures());
+        self::assertContains('userSettings.pageEndpoint:POST /v1/account/mfa/authenticators/totp', $validator->failures());
+    }
+
     private function writeFile(string $path, string $contents): void
     {
         $file = $this->root . DIRECTORY_SEPARATOR . $path;

@@ -36,6 +36,9 @@ final class ArchitectureValidator
         'opentofu/providers.tf',
         'dashboard/config/navigation.json',
         'dashboard/config/user-settings.json',
+        'dashboard/pages/settings/user.html',
+        'dashboard/assets/user-settings.css',
+        'dashboard/assets/user-settings.js',
         'README.novacloud.md',
     ];
 
@@ -121,7 +124,7 @@ final class ArchitectureValidator
             }
         }
 
-        return array_merge($failures, $this->userSettingsFailures());
+        return array_merge($failures, $this->userSettingsFailures(), $this->userSettingsPageFailures());
     }
 
     /**
@@ -171,6 +174,33 @@ final class ArchitectureValidator
         ] as $control) {
             if (($twoFactor['securityControls'][$control] ?? false) !== true) {
                 $failures[] = 'twoFactor.securityControl:' . $control;
+            }
+        }
+
+        return $failures;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function userSettingsPageFailures(): array
+    {
+        $pageFile = $this->root . '/dashboard/pages/settings/user.html';
+        if (!is_file($pageFile)) {
+            return [];
+        }
+
+        $page = (string) file_get_contents($pageFile);
+        $failures = [];
+        foreach (self::EXPECTED_USER_SETTINGS_SECTIONS as $section) {
+            if (!str_contains($page, 'id="' . $section . '"')) {
+                $failures[] = 'userSettings.pageSection:' . $section;
+            }
+        }
+
+        foreach (self::EXPECTED_TWO_FACTOR_ENDPOINTS as $endpoint) {
+            if (!str_contains($page, $endpoint)) {
+                $failures[] = 'userSettings.pageEndpoint:' . $endpoint;
             }
         }
 
