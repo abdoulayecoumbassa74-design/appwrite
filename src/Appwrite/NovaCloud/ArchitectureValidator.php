@@ -35,6 +35,7 @@ final class ArchitectureValidator
         'opentofu/main.tf',
         'opentofu/providers.tf',
         'dashboard/config/navigation.json',
+        'dashboard/config/user-settings.json',
         'README.novacloud.md',
     ];
 
@@ -53,6 +54,32 @@ final class ArchitectureValidator
         'websocket',
         'grpc',
         'requestLogging',
+    ];
+
+    private const EXPECTED_USER_SETTINGS_SECTIONS = [
+        'profile',
+        'security',
+        'twoFactorAuthentication',
+        'preferences',
+        'cloudDefaults',
+    ];
+
+    private const EXPECTED_TWO_FACTOR_ENDPOINTS = [
+        'PATCH /v1/account/mfa',
+        'POST /v1/account/mfa/authenticators/totp',
+        'PUT /v1/account/mfa/authenticators/totp',
+        'DELETE /v1/account/mfa/authenticators/totp',
+        'POST /v1/account/mfa/challenges',
+        'PUT /v1/account/mfa/challenges',
+        'GET /v1/account/mfa/recovery-codes',
+        'PATCH /v1/account/mfa/recovery-codes',
+    ];
+
+    private const EXPECTED_TWO_FACTOR_FACTORS = [
+        'totp',
+        'email',
+        'phone',
+        'recoveryCode',
     ];
 
     /**
@@ -91,6 +118,59 @@ final class ArchitectureValidator
         foreach ($this->expectedTransportCapabilities as $capability) {
             if (($transport[$capability] ?? false) !== true) {
                 $failures[] = 'transport:' . $capability;
+            }
+        }
+
+        return array_merge($failures, $this->userSettingsFailures());
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function userSettingsFailures(): array
+    {
+        $failures = [];
+        $settingsFile = $this->root . '/dashboard/config/user-settings.json';
+
+        if (!is_file($settingsFile)) {
+            return $failures;
+        }
+
+        $settings = json_decode((string) file_get_contents($settingsFile), true);
+        if (!is_array($settings)) {
+            return ['json:dashboard/config/user-settings.json'];
+        }
+
+        $sections = array_column($settings['userSettings']['sections'] ?? [], 'id');
+        foreach (self::EXPECTED_USER_SETTINGS_SECTIONS as $section) {
+            if (!in_array($section, $sections, true)) {
+                $failures[] = 'userSettings.section:' . $section;
+            }
+        }
+
+        $twoFactor = $settings['twoFactorBuildParameters'] ?? [];
+        $factors = $twoFactor['supportedFactors'] ?? [];
+        foreach (self::EXPECTED_TWO_FACTOR_FACTORS as $factor) {
+            if (!in_array($factor, $factors, true)) {
+                $failures[] = 'twoFactor.factor:' . $factor;
+            }
+        }
+
+        $endpoints = $twoFactor['requiredEndpoints'] ?? [];
+        foreach (self::EXPECTED_TWO_FACTOR_ENDPOINTS as $endpoint) {
+            if (!in_array($endpoint, $endpoints, true)) {
+                $failures[] = 'twoFactor.endpoint:' . $endpoint;
+            }
+        }
+
+        foreach ([
+            'requireFreshSessionForEnrollment',
+            'requireVerifiedFactorBeforeEnable',
+            'recoveryCodesAreOneTimeUse',
+            'showRecoveryCodesOnce',
+        ] as $control) {
+            if (($twoFactor['securityControls'][$control] ?? false) !== true) {
+                $failures[] = 'twoFactor.securityControl:' . $control;
             }
         }
 

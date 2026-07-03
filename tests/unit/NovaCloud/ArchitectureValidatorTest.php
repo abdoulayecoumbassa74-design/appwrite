@@ -109,6 +109,44 @@ final class ArchitectureValidatorTest extends TestCase
         self::assertSame(['json:gateway/config/routes.json'], $validator->failures());
     }
 
+
+    public function testUserSettingsAndTwoFactorRequirementsAreReported(): void
+    {
+        $this->writeFile('gateway/config/routes.json', json_encode([
+            'routes' => [],
+            'transport' => [],
+        ], JSON_THROW_ON_ERROR));
+        $this->writeFile('dashboard/config/user-settings.json', json_encode([
+            'userSettings' => [
+                'sections' => [
+                    ['id' => 'profile'],
+                ],
+            ],
+            'twoFactorBuildParameters' => [
+                'supportedFactors' => ['totp'],
+                'requiredEndpoints' => ['PATCH /v1/account/mfa'],
+                'securityControls' => [
+                    'requireFreshSessionForEnrollment' => true,
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR));
+
+        $validator = new ArchitectureValidator(
+            root: $this->root,
+            requiredFiles: [
+                'gateway/config/routes.json',
+                'dashboard/config/user-settings.json',
+            ],
+            expectedRoutes: [],
+            expectedTransportCapabilities: [],
+        );
+
+        self::assertContains('userSettings.section:twoFactorAuthentication', $validator->failures());
+        self::assertContains('twoFactor.factor:recoveryCode', $validator->failures());
+        self::assertContains('twoFactor.endpoint:POST /v1/account/mfa/challenges', $validator->failures());
+        self::assertContains('twoFactor.securityControl:requireVerifiedFactorBeforeEnable', $validator->failures());
+    }
+
     private function writeFile(string $path, string $contents): void
     {
         $file = $this->root . DIRECTORY_SEPARATOR . $path;

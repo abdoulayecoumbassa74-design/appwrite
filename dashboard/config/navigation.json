@@ -16,5 +16,10 @@
     "Settings"
   ],
   "preserveAuthentication": true,
-  "designSystem": "appwrite-console"
+  "designSystem": "appwrite-console",
+  "settings": {
+    "userSettingsRoute": "/settings/user",
+    "securityRoute": "/settings/user#security",
+    "twoFactorAuthenticationRoute": "/settings/user#twoFactorAuthentication"
+  }
 }
