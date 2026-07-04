@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NovaCloud Console Terminal</title>
+  <link rel="stylesheet" href="../../assets/terminal.css">
+</head>
+<body>
+  <main class="terminal-shell" data-page="novacloud-console-terminal">
+    <header class="terminal-header">
+      <div>
+        <p class="eyebrow">NovaCloud Console</p>
+        <h1>Terminal</h1>
+        <p>Run authenticated NovaCloud control-plane commands from a guarded browser console.</p>
+      </div>
+      <div class="session-state" aria-label="Session state">
+        <span class="status-dot"></span>
+        Appwrite session required
+      </div>
+    </header>
+
+    <section class="quick-commands" aria-label="Quick commands">
+      <button data-command="help">help</button>
+      <button data-command="projects list">projects list</button>
+      <button data-command="compute instances list">compute instances list</button>
+      <button data-command="vm list">vm list</button>
+      <button data-command="kubernetes clusters list">kubernetes clusters list</button>
+      <button data-command="storage buckets list">storage buckets list</button>
+      <button data-command="network vpcs list">network vpcs list</button>
+      <button data-command="database instances list">database instances list</button>
+    </section>
+
+    <section class="terminal-window" aria-label="NovaCloud terminal output">
+      <div class="terminal-toolbar">
+        <span></span><span></span><span></span>
+        <strong>novacloud@console</strong>
+      </div>
+      <output id="terminalOutput" class="terminal-output" aria-live="polite"></output>
+      <form id="terminalForm" class="terminal-input-row" autocomplete="off">
+        <label for="terminalInput">$</label>
+        <input id="terminalInput" name="command" type="text" spellcheck="false" autofocus placeholder="Type 'help' to list commands">
+        <button type="submit">Run</button>
+      </form>
+    </section>
+
+    <aside class="terminal-help">
+      <h2>Execution model</h2>
+      <ul>
+        <li>Uses the active Appwrite browser session with `credentials: include`.</li>
+        <li>Maps commands to NovaCloud API Gateway routes under `/api/v1/*`.</li>
+        <li>Blocks unknown commands client-side before network execution.</li>
+        <li>Designed for read-first operations; mutations can be added behind RBAC scopes.</li>
+      </ul>
+    </aside>
+  </main>
+  <script src="../../assets/terminal.js" defer></script>
+</body>
+</html>

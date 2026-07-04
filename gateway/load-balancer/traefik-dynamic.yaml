@@ -1,0 +1,16 @@
+http:
+  middlewares:
+    novacloud-security:
+      headers:
+        frameDeny: true
+        contentTypeNosniff: true
+        referrerPolicy: no-referrer
+    novacloud-rate-limit:
+      rateLimit:
+        average: 600
+        burst: 100
+  services:
+    api-gateway:
+      loadBalancer:
+        servers:
+          - url: http://api-gateway:8080

@@ -1,0 +1,34 @@
+services:
+  compute-service:
+    api: [rest, grpc]
+    persistence: postgresql
+    capabilities: [instance-scheduling, resource-allocation, cpu, ram, gpu, numa, quotas, multi-tenancy]
+  vm-service:
+    providers: [openstack-nova, kubevirt, libvirt]
+    operations: [create, delete, start, stop, pause, snapshot, resize, migrate]
+    isolation: organization
+  storage-service:
+    providers: [ceph, minio, openstack-cinder, cephfs, rbd]
+    products: [object-storage, block-storage, file-storage]
+    capabilities: [csi, quotas, tenant-isolation]
+  kubernetes-service:
+    integrations: [kubernetes, helm, argocd, ceph-csi]
+    operations: [create-cluster, delete-cluster, upgrade-cluster, autoscaling, ingress, storageclass, node-pools]
+  network-service:
+    provider: openstack-neutron
+    capabilities: [vpc, subnets, nat, floating-ip, firewall, load-balancer, dns, vpn, ipv6]
+  database-service:
+    engines: [postgresql, mysql, mariadb, mongodb, redis]
+    operations: [provision, backup, restore, replication, high-availability, monitoring]
+  monitoring-service:
+    integrations: [prometheus, grafana, loki, tempo, alertmanager]
+    capabilities: [metrics, logs, tracing, dashboards, alerts]
+  billing-service:
+    integrations: [stripe]
+    capabilities: [usage-collection, pricing-engine, invoices, credits, organization-quotas, report-export]
+  ai-service:
+    integrations: [ollama, vllm]
+    capabilities: [gpu-scheduling, model-registry, inference-api, fine-tuning, vector-database, openai-compatible-api]
+  marketplace-service:
+    artifacts: [helm-charts, applications, templates]
+    capabilities: [one-click-deployments, versioning, ratings, categories]

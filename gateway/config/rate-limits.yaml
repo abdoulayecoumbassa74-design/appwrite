@@ -1,0 +1,22 @@
+defaults:
+  requestsPerMinute: 600
+  burst: 100
+routes:
+  /api/v1/auth:
+    requestsPerMinute: 120
+    burst: 20
+  /api/v1/compute:
+    requestsPerMinute: 300
+    burst: 50
+  /api/v1/vm:
+    requestsPerMinute: 300
+    burst: 50
+  /api/v1/storage:
+    requestsPerMinute: 600
+    burst: 100
+  /api/v1/kubernetes:
+    requestsPerMinute: 240
+    burst: 40
+  /api/v1/database:
+    requestsPerMinute: 240
+    burst: 40

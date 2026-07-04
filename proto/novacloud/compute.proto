@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package novacloud.compute.v1;
+
+service ComputeService {
+  rpc ScheduleInstance(ScheduleInstanceRequest) returns (InstanceAllocation);
+  rpc GetQuota(GetQuotaRequest) returns (Quota);
+}
+
+message ScheduleInstanceRequest {
+  string organization_id = 1;
+  string project_id = 2;
+  string image = 3;
+  ResourceRequest resources = 4;
+}
+
+message ResourceRequest {
+  uint32 cpu_cores = 1;
+  uint64 ram_bytes = 2;
+  uint32 gpu_count = 3;
+  string numa_policy = 4;
+}
+
+message InstanceAllocation {
+  string instance_id = 1;
+  string node_id = 2;
+  ResourceRequest allocated = 3;
+}
+
+message GetQuotaRequest {
+  string organization_id = 1;
+}
+
+message Quota {
+  uint32 cpu_cores = 1;
+  uint64 ram_bytes = 2;
+  uint32 gpu_count = 3;
+  uint64 storage_bytes = 4;
+}

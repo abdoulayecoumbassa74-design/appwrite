@@ -1,0 +1,6 @@
+apiGateway:
+  image: caddy:2.8-alpine
+  replicas: 2
+  service:
+    type: ClusterIP
+    port: 80

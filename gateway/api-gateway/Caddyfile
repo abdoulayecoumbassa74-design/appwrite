@@ -1,0 +1,64 @@
+{
+    servers {
+        protocol {
+            experimental_http3
+        }
+    }
+}
+
+:8080 {
+    log {
+        output stdout
+        format json
+    }
+
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy no-referrer
+    }
+
+    metrics /metrics
+
+    handle_path /api/v1/auth* {
+        reverse_proxy {$NOVACLOUD_AUTH_UPSTREAM:appwrite:80} {
+            header_up X-NovaCloud-Route auth
+            transport http {
+                versions h2c 2 1.1
+            }
+        }
+    }
+
+    handle_path /api/v1/compute* {
+        reverse_proxy {$NOVACLOUD_COMPUTE_UPSTREAM:compute-service:8080} {
+            transport http {
+                versions h2c 2 1.1
+            }
+        }
+    }
+
+    handle_path /api/v1/vm* {
+        reverse_proxy {$NOVACLOUD_VM_UPSTREAM:vm-service:8080}
+    }
+
+    handle_path /api/v1/network* {
+        reverse_proxy {$NOVACLOUD_NETWORK_UPSTREAM:network-service:8080}
+    }
+
+    handle_path /api/v1/storage* {
+        reverse_proxy {$NOVACLOUD_STORAGE_UPSTREAM:storage-service:8080}
+    }
+
+    handle_path /api/v1/kubernetes* {
+        reverse_proxy {$NOVACLOUD_KUBERNETES_UPSTREAM:kubernetes-service:8080}
+    }
+
+    handle_path /api/v1/database* {
+        reverse_proxy {$NOVACLOUD_DATABASE_UPSTREAM:database-service:8080}
+    }
+
+    @grpc header Content-Type application/grpc*
+    handle @grpc {
+        reverse_proxy h2c://{$NOVACLOUD_GRPC_UPSTREAM:compute-service:9090}
+    }
+}

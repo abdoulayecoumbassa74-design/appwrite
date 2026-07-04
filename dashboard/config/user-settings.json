@@ -1,0 +1,79 @@
+{
+  "userSettings": {
+    "route": "/settings/user",
+    "title": "User settings",
+    "icon": "user",
+    "requiresAuthentication": true,
+    "sections": [
+      {
+        "id": "profile",
+        "title": "Profile",
+        "fields": [
+          { "id": "name", "type": "text", "source": "account.name", "endpoint": "PATCH /v1/account/name", "required": true, "maxLength": 128 },
+          { "id": "email", "type": "email", "source": "account.email", "endpoint": "PATCH /v1/account/email", "requiresPassword": true },
+          { "id": "phone", "type": "phone", "source": "account.phone", "endpoint": "PATCH /v1/account/phone" }
+        ]
+      },
+      {
+        "id": "security",
+        "title": "Security",
+        "fields": [
+          { "id": "password", "type": "password", "endpoint": "PATCH /v1/account/password", "requiresCurrentPassword": true },
+          { "id": "activeSessions", "type": "session-list", "endpoint": "GET /v1/account/sessions", "revokeEndpoint": "DELETE /v1/account/sessions/{sessionId}" },
+          { "id": "securityLogs", "type": "audit-list", "endpoint": "GET /v1/account/logs" }
+        ]
+      },
+      {
+        "id": "twoFactorAuthentication",
+        "title": "Two-factor authentication",
+        "fields": [
+          { "id": "mfaEnabled", "type": "toggle", "source": "account.mfa", "endpoint": "PATCH /v1/account/mfa", "requiresVerifiedFactor": true },
+          { "id": "totp", "type": "totp-enrollment", "secretEndpoint": "POST /v1/account/mfa/authenticators/totp", "verifyEndpoint": "PUT /v1/account/mfa/authenticators/totp", "deleteEndpoint": "DELETE /v1/account/mfa/authenticators/totp" },
+          { "id": "emailOtp", "type": "otp-factor", "challengeEndpoint": "POST /v1/account/mfa/challenges", "verifyEndpoint": "PUT /v1/account/mfa/challenges", "factor": "email" },
+          { "id": "phoneOtp", "type": "otp-factor", "challengeEndpoint": "POST /v1/account/mfa/challenges", "verifyEndpoint": "PUT /v1/account/mfa/challenges", "factor": "phone" },
+          { "id": "recoveryCodes", "type": "recovery-codes", "listEndpoint": "GET /v1/account/mfa/recovery-codes", "regenerateEndpoint": "PATCH /v1/account/mfa/recovery-codes", "oneTimeUse": true }
+        ]
+      },
+      {
+        "id": "preferences",
+        "title": "Preferences",
+        "fields": [
+          { "id": "theme", "type": "select", "source": "account.prefs.theme", "endpoint": "PATCH /v1/account/prefs", "options": ["system", "light", "dark"] },
+          { "id": "locale", "type": "locale", "source": "account.prefs.locale", "endpoint": "PATCH /v1/account/prefs" },
+          { "id": "timezone", "type": "timezone", "source": "account.prefs.timezone", "endpoint": "PATCH /v1/account/prefs" }
+        ]
+      },
+      {
+        "id": "cloudDefaults",
+        "title": "NovaCloud defaults",
+        "fields": [
+          { "id": "defaultOrganization", "type": "organization-picker", "source": "account.prefs.novacloud.defaultOrganization", "endpoint": "PATCH /v1/account/prefs" },
+          { "id": "defaultProject", "type": "project-picker", "source": "account.prefs.novacloud.defaultProject", "endpoint": "PATCH /v1/account/prefs" },
+          { "id": "defaultRegion", "type": "region-picker", "source": "account.prefs.novacloud.defaultRegion", "endpoint": "PATCH /v1/account/prefs" }
+        ]
+      }
+    ]
+  },
+  "twoFactorBuildParameters": {
+    "requiredAccountFields": ["$id", "email", "phone", "mfa", "prefs"],
+    "requiredSessionFields": ["$id", "userId", "factors", "mfaUpdatedAt", "expire"],
+    "supportedFactors": ["totp", "email", "phone", "recoveryCode"],
+    "requiredEndpoints": [
+      "PATCH /v1/account/mfa",
+      "POST /v1/account/mfa/authenticators/totp",
+      "PUT /v1/account/mfa/authenticators/totp",
+      "DELETE /v1/account/mfa/authenticators/totp",
+      "POST /v1/account/mfa/challenges",
+      "PUT /v1/account/mfa/challenges",
+      "GET /v1/account/mfa/recovery-codes",
+      "PATCH /v1/account/mfa/recovery-codes"
+    ],
+    "securityControls": {
+      "requireFreshSessionForEnrollment": true,
+      "requireVerifiedFactorBeforeEnable": true,
+      "recoveryCodesAreOneTimeUse": true,
+      "showRecoveryCodesOnce": true,
+      "auditEvents": ["users.[userId].update.mfa", "users.[userId].update.mfa.recoveryCodes"]
+    }
+  }
+}
