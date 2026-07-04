@@ -39,6 +39,9 @@ final class ArchitectureValidator
         'dashboard/pages/settings/user.html',
         'dashboard/assets/user-settings.css',
         'dashboard/assets/user-settings.js',
+        'dashboard/pages/terminal/index.html',
+        'dashboard/assets/terminal.css',
+        'dashboard/assets/terminal.js',
         'README.novacloud.md',
     ];
 
@@ -85,6 +88,17 @@ final class ArchitectureValidator
         'recoveryCode',
     ];
 
+    private const EXPECTED_TERMINAL_COMMANDS = [
+        'help',
+        'projects list',
+        'compute instances list',
+        'vm list',
+        'kubernetes clusters list',
+        'storage buckets list',
+        'network vpcs list',
+        'database instances list',
+    ];
+
     /**
      * @return list<string>
      */
@@ -124,7 +138,12 @@ final class ArchitectureValidator
             }
         }
 
-        return array_merge($failures, $this->userSettingsFailures(), $this->userSettingsPageFailures());
+        return array_merge(
+            $failures,
+            $this->userSettingsFailures(),
+            $this->userSettingsPageFailures(),
+            $this->terminalPageFailures(),
+        );
     }
 
     /**
@@ -201,6 +220,55 @@ final class ArchitectureValidator
         foreach (self::EXPECTED_TWO_FACTOR_ENDPOINTS as $endpoint) {
             if (!str_contains($page, $endpoint)) {
                 $failures[] = 'userSettings.pageEndpoint:' . $endpoint;
+            }
+        }
+
+        return $failures;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function terminalPageFailures(): array
+    {
+        $pageFile = $this->root . '/dashboard/pages/terminal/index.html';
+        $scriptFile = $this->root . '/dashboard/assets/terminal.js';
+        $navigationFile = $this->root . '/dashboard/config/navigation.json';
+
+        if (!is_file($pageFile) || !is_file($scriptFile) || !is_file($navigationFile)) {
+            return [];
+        }
+
+        $page = (string) file_get_contents($pageFile);
+        $script = (string) file_get_contents($scriptFile);
+        $navigation = json_decode((string) file_get_contents($navigationFile), true);
+        $failures = [];
+
+        if (!str_contains($page, 'data-page="novacloud-console-terminal"')) {
+            $failures[] = 'terminal.page:data-page';
+        }
+
+        if (!in_array('Terminal', $navigation['navigation'] ?? [], true)) {
+            $failures[] = 'terminal.navigation:Terminal';
+        }
+
+        if (($navigation['terminal']['requiresAuthentication'] ?? false) !== true) {
+            $failures[] = 'terminal.requiresAuthentication';
+        }
+
+        foreach (self::EXPECTED_TERMINAL_COMMANDS as $command) {
+            if (!str_contains($script, "'" . $command . "'")) {
+                $failures[] = 'terminal.command:' . $command;
+            }
+        }
+
+        foreach (self::EXPECTED_ROUTES as $route) {
+            if ($route === '/api/v1/auth') {
+                continue;
+            }
+
+            if (!str_contains($script, $route)) {
+                $failures[] = 'terminal.route:' . $route;
             }
         }
 

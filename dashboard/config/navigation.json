@@ -13,6 +13,7 @@
     "Billing",
     "Monitoring",
     "Logs",
+    "Terminal",
     "Settings"
   ],
   "preserveAuthentication": true,
@@ -22,5 +23,20 @@
     "securityRoute": "/settings/user#security",
     "twoFactorAuthenticationRoute": "/settings/user#twoFactorAuthentication",
     "userSettingsPage": "dashboard/pages/settings/user.html"
+  },
+  "terminal": {
+    "route": "/terminal",
+    "page": "dashboard/pages/terminal/index.html",
+    "requiresAuthentication": true,
+    "allowedCommands": [
+      "help",
+      "projects list",
+      "compute instances list",
+      "vm list",
+      "kubernetes clusters list",
+      "storage buckets list",
+      "network vpcs list",
+      "database instances list"
+    ]
   }
 }

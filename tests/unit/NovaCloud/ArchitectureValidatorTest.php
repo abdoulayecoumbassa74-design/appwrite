@@ -170,6 +170,38 @@ final class ArchitectureValidatorTest extends TestCase
         self::assertContains('userSettings.pageEndpoint:POST /v1/account/mfa/authenticators/totp', $validator->failures());
     }
 
+
+    public function testTerminalPageMustExposeNavigationCommandsAndRoutes(): void
+    {
+        $this->writeFile('gateway/config/routes.json', json_encode([
+            'routes' => [],
+            'transport' => [],
+        ], JSON_THROW_ON_ERROR));
+        $this->writeFile('dashboard/pages/terminal/index.html', '<main data-page="novacloud-console-terminal"></main>');
+        $this->writeFile('dashboard/assets/terminal.js', "'help'");
+        $this->writeFile('dashboard/config/navigation.json', json_encode([
+            'navigation' => ['Dashboard'],
+            'terminal' => ['requiresAuthentication' => false],
+        ], JSON_THROW_ON_ERROR));
+
+        $validator = new ArchitectureValidator(
+            root: $this->root,
+            requiredFiles: [
+                'gateway/config/routes.json',
+                'dashboard/pages/terminal/index.html',
+                'dashboard/assets/terminal.js',
+                'dashboard/config/navigation.json',
+            ],
+            expectedRoutes: [],
+            expectedTransportCapabilities: [],
+        );
+
+        self::assertContains('terminal.navigation:Terminal', $validator->failures());
+        self::assertContains('terminal.requiresAuthentication', $validator->failures());
+        self::assertContains('terminal.command:compute instances list', $validator->failures());
+        self::assertContains('terminal.route:/api/v1/compute', $validator->failures());
+    }
+
     private function writeFile(string $path, string $contents): void
     {
         $file = $this->root . DIRECTORY_SEPARATOR . $path;
